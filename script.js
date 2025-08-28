@@ -34,5 +34,3 @@ function promptUser() {
 
     operate(firstNum, secondNum, operator);
 }
-
-promptUser();
