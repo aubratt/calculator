@@ -13,7 +13,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
     width: 24rem;
     height: 40rem;
     background-color: #212121;
@@ -55,6 +54,18 @@ body {
     justify-content: center;
     width: 4.5rem;
     height: 4.5rem;
-    border: 1px solid white;
     border-radius: 100%;
+    font-size: 1.75rem;
+}
+
+.function-btn {
+    background-color: gray;
+}
+
+.digit-btn {
+    background-color: #303030;
+}
+
+.operator-btn {
+    background-color: orange;
 }
