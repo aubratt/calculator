@@ -4,7 +4,7 @@ body {
     height: 100vh;
     background-color: #181818;
     color: white;
-    font-family: sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     margin: 0;
 }
 
@@ -37,7 +37,7 @@ body {
 }
 
 #main-display {
-    font-size: 3rem;
+    font-size: 4rem;
 }
 
 #keypad {
@@ -49,6 +49,7 @@ body {
 }
 
 .keypad-btn {
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -62,7 +63,9 @@ body {
     background-color: gray;
 }
 
-.digit-btn {
+.digit-btn,
+#info-btn,
+#decimal-btn {
     background-color: #303030;
 }
 
