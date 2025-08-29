@@ -5,20 +5,37 @@ function getBtnCategory(btn) {
         evaluateCurrentEquation(currentEquation);
     } else if (btn.classList.contains("digit-btn") || btn.classList.contains("operator-btn")) {
         updateCurrentEquation(currentEquation, btn);
-        console.log("clicked digit or operator");
     }
 }
 
 function updateCurrentEquation(currentEquation, btn) {
     if (currentEquation.textContent === "0" && btn.classList.contains("digit-btn")) {
         currentEquation.textContent = btn.textContent;
-    } else if (currentEquation.textContent !== "0" && btn.classList.contains("digit-btn")) {
+    } else if (
+        (currentEquation.textContent !== "0" && btn.classList.contains("digit-btn")) ||
+        (currentEquation.textContent === "0" && btn.classList.contains("operator-btn"))
+    ) {
         currentEquation.textContent += btn.textContent;
+    } else if (currentEquation.textContent !== "0" && btn.classList.contains("operator-btn")) {
+        if (
+            currentEquation.textContent.includes("+") ||
+            currentEquation.textContent.includes("−") ||
+            currentEquation.textContent.includes("×") ||
+            currentEquation.textContent.includes("÷") ||
+            btn.textContent === "="
+        ) {
+            evaluateCurrentEquation(currentEquation, btn);
+        } else {
+            currentEquation.textContent += btn.textContent;
+        }
     }
 }
 
 function evaluateCurrentEquation(currentEquation) {
-
+    // This function needs to account for straight-up "x + y =" equations and
+    // equations "x + y -" equations, meaning it evaluates x + y then goes
+    // straight into the next equation using the sum of x + y with - appended
+    // to the current equation string
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -36,10 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
 //      For example, hitting '=' after entering '10%4' will return '2'
 
 // PRE-INTERACTION - Initial load of page OR after AC is clicked
-// 1. Set equation variable to 0
-// 1. Calc displays 0 in main display
-// 3. Set history display variable to empty
-// 4. Wait for FIRST INTERACTION
+// 1. Set equation variable (main display) to 0
+// 2. Set history display variable to empty
+// 3. Wait for FIRST INTERACTION
 
 // FIRST INTERACTION - First user interaction after initial load or after AC is clicked
 // 1. User clicks a button
@@ -90,4 +106,3 @@ document.addEventListener("DOMContentLoaded", function () {
 //                  ~ Go to NEXT INTERACTION
 //          ii. If button is =:
 //              - If there is at least one instance of number values separated by an operator:
-                    
