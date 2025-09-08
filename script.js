@@ -152,7 +152,19 @@ function evaluateCurrentEquationAnswer(mainDisplay, equationSituation) {
     }
 
     if (mainDisplay.textContent.includes("+")) {
-        return findSum(mainDisplay);
+        return calculateSum(mainDisplay);
+    }
+
+    if (mainDisplay.textContent.includes("−")) {
+        return calculateDifference(mainDisplay);
+    }
+
+    if (mainDisplay.textContent.includes("×")) {
+        return calculateProduct(mainDisplay);
+    }
+
+    if (mainDisplay.textContent.includes("÷")) {
+        return calculateQuotient(mainDisplay);
     }
 }
 
@@ -160,7 +172,7 @@ function calculatePercentage(number) {
     return number.slice(0, -1) / 100;
 }
 
-function findSum(mainDisplay) {
+function calculateSum(mainDisplay) {
     const equationString = mainDisplay.textContent;
     const indexOfPlus = equationString.indexOf("+");
     let firstNumber = equationString.slice(0, indexOfPlus);
@@ -169,8 +181,47 @@ function findSum(mainDisplay) {
     if (firstNumber.endsWith("%")) {
         firstNumber = calculatePercentage(firstNumber);
     }
-    
+
     return (parseFloat(firstNumber) + secondNumber).toString();
+}
+
+function calculateDifference(mainDisplay) {
+    const equationString = mainDisplay.textContent;
+    const indexOfMinus = equationString.indexOf("−");
+    let firstNumber = equationString.slice(0, indexOfMinus);
+    const secondNumber = parseFloat(equationString.slice(indexOfMinus + 1, equationString.length));
+
+    if (firstNumber.endsWith("%")) {
+        firstNumber = calculatePercentage(firstNumber);
+    }
+
+    return (parseFloat(firstNumber) - secondNumber).toString();
+}
+
+function calculateProduct(mainDisplay) {
+    const equationString = mainDisplay.textContent;
+    const indexOfTimes = equationString.indexOf("×");
+    let firstNumber = equationString.slice(0, indexOfTimes);
+    const secondNumber = parseFloat(equationString.slice(indexOfTimes + 1, equationString.length));
+
+    if (firstNumber.endsWith("%")) {
+        firstNumber = calculatePercentage(firstNumber);
+    }
+
+    return (parseFloat(firstNumber) * secondNumber).toString();
+}
+
+function calculateQuotient(mainDisplay) {
+    const equationString = mainDisplay.textContent;
+    const indexOfObelus = equationString.indexOf("÷");
+    let firstNumber = equationString.slice(0, indexOfObelus);
+    const secondNumber = parseFloat(equationString.slice(indexOfObelus + 1, equationString.length));
+
+    if (firstNumber.endsWith("%")) {
+        firstNumber = calculatePercentage(firstNumber);
+    }
+
+    return (parseFloat(firstNumber) / secondNumber).toString();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
