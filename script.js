@@ -1,8 +1,45 @@
 function updateDisplayOnBtnClick(clickedBtn) {
     const mainDisplay = document.getElementById("main-display");
-    const currentMainDisplayText = mainDisplay.textContent;
+    const equationSituation = evaluateCurrentEquationSituation(mainDisplay, clickedBtn);
+    const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
 
-    mainDisplay.textContent = currentMainDisplayText.concat(clickedBtn.textContent);
+    if (equationSituation === "Zero") {
+        if (clickedBtnCategory === "Digit") {
+            mainDisplay.textContent = clickedBtn.textContent;
+        }
+
+        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+            mainDisplay.textContent += clickedBtn.textContent;
+        }
+    }
+}
+
+function evaluateCurrentEquationSituation(mainDisplay) {
+    if (mainDisplay.textContent === "0") {
+        return "Zero";
+    }
+}
+
+function evaluateClickedBtnCategory(clickedBtn) {
+    if (clickedBtn.classList.contains("digit-btn")) {
+        return "Digit";
+    }
+
+    if (clickedBtn.id.includes("equals-btn")) {
+        return "Evaluator";
+    }
+
+    if (clickedBtn.classList.contains("operator-btn")) {
+        return "Basic Operator";
+    }
+
+    if (clickedBtn.id.includes("modulo-btn")) {
+        return "Modulo Operator";
+    }
+
+    if (clickedBtn.id.includes("ac-btn")) {
+        return "All Clear";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -45,8 +82,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //      - One Number with Trailing Modulo Operator (15%)
 //          - Digit click: Append digit value to equation string (15%9)
-//          - Basic Operator click: Append operator to equation string (15%+)
-//          - Modulo Operator click: Do nothing (15%)
+//          - Basic Operator OR Modulo Operator click: Append operator to equation string (15%+) (On Modulo click, first number becomes percentage: (15%)%) 
 //          - Evaluator click: Evaluate equation string(*1) (Calculate 15/100), replace equation string with evaluation answer (0.15), push evaluated equation string to display history (15%=0.15)
 //          - All Clear click: Reset equation string to 0 (0)
 
@@ -58,7 +94,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //      - Numbers on Either Side of Modulo Operator (15%6)
 //          - Digit click: Append digit value to equation string (15%69)
-//          - Basic Operator:
+//          - Basic Operator OR Modulo Operator click: Evaluate equation string(*4-a) (Calculate 15%6), replace equation string with with evaluation answer and clicked operator appended (3+), push evaluated equation string to display history 
+//          - Evaluator click: Evaluate equation string (15%6), replace equation string with evaluation answer (3), push evaluated equation string to display history (15%6=3)
+//          - All Clear click: Reset equation string to 0 (0) 
 
 // * Note: Modulo (%) does different operations depending on the context of the equation string. See examples below.
 //          *1 One number with trailing modulo: Evaluates to the decimal value of the number as a percent (15%=0.15)
