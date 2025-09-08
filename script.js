@@ -148,12 +148,29 @@ function evaluateClickedBtnCategory(clickedBtn) {
 
 function evaluateCurrentEquationAnswer(mainDisplay, equationSituation) {
     if (equationSituation === "One Number with Trailing Modulo Operator") {
-        return calculatePercentage(mainDisplay);
+        return calculatePercentage(mainDisplay.textContent);
+    }
+
+    if (mainDisplay.textContent.includes("+")) {
+        return findSum(mainDisplay);
     }
 }
 
-function calculatePercentage(mainDisplay) {
-    return parseFloat(mainDisplay.textContent.slice(0, -1)) / 100;
+function calculatePercentage(number) {
+    return number.slice(0, -1) / 100;
+}
+
+function findSum(mainDisplay) {
+    const equationString = mainDisplay.textContent;
+    const indexOfPlus = equationString.indexOf("+");
+    let firstNumber = equationString.slice(0, indexOfPlus);
+    const secondNumber = parseFloat(equationString.slice(indexOfPlus + 1, equationString.length));
+
+    if (firstNumber.endsWith("%")) {
+        firstNumber = calculatePercentage(firstNumber);
+    }
+    
+    return (parseFloat(firstNumber) + secondNumber).toString();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
