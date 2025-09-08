@@ -24,6 +24,26 @@ function updateDisplayOnBtnClick(clickedBtn) {
             mainDisplay.textContent += clickedBtn.textContent;
         }
     }
+
+    if (equationSituation === "One Number with Trailing Basic Operator") {
+        if (clickedBtnCategory === "Digit") {
+            mainDisplay.textContent += clickedBtn.textContent;
+        }
+
+        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+            mainDisplay.textContent = mainDisplay.textContent.slice(0, -1).concat(clickedBtn.textContent);
+        }
+    }
+
+    if (equationSituation === "One Number with Trailing Modulo Operator") {
+        if (clickedBtnCategory === "Digit" || clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+            mainDisplay.textContent += clickedBtn.textContent;
+        }
+
+        if (clickedBtnCategory === "Evaluator") {
+            const answer = evaluateCurrentEquationAnswer(mainDisplay, clickedBtn);
+        }
+    }    
 }
 
 function evaluateCurrentEquationSituation(mainDisplay) {
@@ -43,6 +63,22 @@ function evaluateCurrentEquationSituation(mainDisplay) {
 
     if (!currentEquationIncludesBasicOperator && !currentEquationIncludesModuloOperator) {
         return "One Number";
+    }
+
+    const currentEquationEndsWithBasicOperator = 
+        currentEquationString.endsWith("+") ||
+        currentEquationString.endsWith("−") ||
+        currentEquationString.endsWith("×") ||
+        currentEquationString.endsWith("÷");
+    
+    if (currentEquationEndsWithBasicOperator) {
+        return "One Number with Trailing Basic Operator";
+    }
+
+    const currentEquationEndsWithModuloOperator = currentEquationString.endsWith("%");
+
+    if (currentEquationEndsWithModuloOperator) {
+        return "One Number with Trailing Modulo Operator";
     }
 }
 
@@ -66,6 +102,10 @@ function evaluateClickedBtnCategory(clickedBtn) {
     if (clickedBtn.id.includes("ac-btn")) {
         return "All Clear";
     }
+}
+
+function evaluateCurrentEquationAnswer(mainDisplay, clickedBtn) {
+    
 }
 
 document.addEventListener("DOMContentLoaded", function () {
