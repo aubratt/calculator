@@ -3,6 +3,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
     const historyDisplay = document.getElementById("history-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay, clickedBtn);
     const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
+    const answer = evaluateCurrentEquationAnswer(mainDisplay, equationSituation);
 
     if (clickedBtnCategory === "All Clear") {
         mainDisplay.textContent = "0";
@@ -41,9 +42,42 @@ function updateDisplayOnBtnClick(clickedBtn) {
         }
 
         if (clickedBtnCategory === "Evaluator") {
-            const answer = evaluateCurrentEquationAnswer(mainDisplay, clickedBtn);
+            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+            mainDisplay.textContent = answer;
         }
-    }    
+    }
+
+    if (equationSituation === "Numbers on Either Side of Basic Operator") {
+        if (clickedBtnCategory === "Digit") {
+            mainDisplay.textContent += clickedBtn.textContent;
+        }
+
+        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+            mainDisplay.textContent = answer.concat(clickedBtn.textContent);
+        }
+
+        if (clickedBtnCategory === "Evaluator") {
+            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+            mainDisplay.textContent = answer;
+        }
+    }
+
+    if (equationSituation === "Numbers on Either Side of Modulo Operator") {
+        if (clickedBtnCategory === "Digit") {
+            mainDisplay.textContent += clickedBtn.textContent;
+        }
+
+        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+            mainDisplay.textContent = answer.concat(clickedBtn.textContent);
+        }
+
+        if (clickedBtnCategory === "Evaluator") {
+            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+            mainDisplay.textContent = answer;
+        }
+    }
 }
 
 function evaluateCurrentEquationSituation(mainDisplay) {
@@ -65,12 +99,12 @@ function evaluateCurrentEquationSituation(mainDisplay) {
         return "One Number";
     }
 
-    const currentEquationEndsWithBasicOperator = 
+    const currentEquationEndsWithBasicOperator =
         currentEquationString.endsWith("+") ||
         currentEquationString.endsWith("−") ||
         currentEquationString.endsWith("×") ||
         currentEquationString.endsWith("÷");
-    
+
     if (currentEquationEndsWithBasicOperator) {
         return "One Number with Trailing Basic Operator";
     }
@@ -79,6 +113,14 @@ function evaluateCurrentEquationSituation(mainDisplay) {
 
     if (currentEquationEndsWithModuloOperator) {
         return "One Number with Trailing Modulo Operator";
+    }
+
+    if (currentEquationIncludesBasicOperator) {
+        return "Numbers on Either Side of Basic Operator";
+    }
+
+    if (currentEquationIncludesModuloOperator) {
+        return "Numbers on Either Side of Modulo Operator";
     }
 }
 
@@ -104,8 +146,14 @@ function evaluateClickedBtnCategory(clickedBtn) {
     }
 }
 
-function evaluateCurrentEquationAnswer(mainDisplay, clickedBtn) {
-    
+function evaluateCurrentEquationAnswer(mainDisplay, equationSituation) {
+    if (equationSituation === "One Number with Trailing Modulo Operator") {
+        return calculatePercentage(mainDisplay);
+    }
+}
+
+function calculatePercentage(mainDisplay) {
+    return parseFloat(mainDisplay.textContent.slice(0, -1)) / 100;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -154,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //      - Numbers on Either Side of Basic Operator (15+5)
 //          - Digit click: Append digit value to equation string (15+51)
-//          - Basic Operator OR Modulo Operator click: Evaluate equation string(*4) (Calculate 15+5), replace equation string with evaluation answer and clicked operater appended (20-), push evaluated equation string to display history (15+5=20)
+//          - Basic Operator OR Modulo Operator click: Evaluate equation string (Calculate 15+5), replace equation string with evaluation answer and clicked operater appended (20-), push evaluated equation string to display history (15+5=20)
 //          - Evaluator click: Evaluate equation string (Calculate 15+5), replace equation string with evaluation answer (20), push evaluated equation string to display history (15+5=20)
 //          - All Clear click: Reset equation string to 0 (0)
 
@@ -168,5 +216,3 @@ document.addEventListener("DOMContentLoaded", function () {
 //          *1 One number with trailing modulo: Evaluates to the decimal value of the number as a percent (15%=0.15)
 //          *2 Numbers on either side of modulo: Evaluates to the modulo of the equation (15%4=3)
 //          *3 Full equation string with trailing modulo on first number: Evaluate equation using decimal value of first number's percentage (60%+15=15.6)
-//          *4 Full equation string with trailing modulo on second number: Evaluate equation using second number's percentage of first number as the second number (60% of 15 is 9, so 15+60%=24)
-//              *4-a Allows for modulo to be used as the first operator also (6% of 15 is 0.9, so 15%6%=0.06)
