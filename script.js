@@ -3,6 +3,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
     const historyDisplay = document.getElementById("history-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay, clickedBtn);
     const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
+    const decimalInCurrentNumber = evaluateDecimalOccurences(mainDisplay, equationSituation);
     const answer = evaluateCurrentEquationAnswer(mainDisplay, equationSituation);
 
     if (clickedBtnCategory === "All Clear") {
@@ -10,77 +11,54 @@ function updateDisplayOnBtnClick(clickedBtn) {
         historyDisplay.textContent = "";
     }
 
-    if (equationSituation === "Zero") {
-        if (clickedBtnCategory === "Digit") {
-            mainDisplay.textContent = clickedBtn.textContent;
-        }
-
-        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
-            mainDisplay.textContent += clickedBtn.textContent;
-        }
+    if (!decimalInCurrentNumber && clickedBtnCategory === "Decimal") {
+        mainDisplay.textContent += clickedBtn.textContent;
     }
 
-    if (equationSituation === "One Number") {
-        if (clickedBtnCategory === "Digit" || clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
-            mainDisplay.textContent += clickedBtn.textContent;
-        }
+    if (equationSituation === "Zero" && clickedBtnCategory === "Digit") {
+        mainDisplay.textContent = clickedBtn.textContent;
+    } else if (clickedBtnCategory === "Digit") {
+        mainDisplay.textContent += clickedBtn.textContent;
     }
 
-    if (equationSituation === "One Number with Trailing Basic Operator") {
-        if (clickedBtnCategory === "Digit") {
-            mainDisplay.textContent += clickedBtn.textContent;
-        }
-
-        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
-            mainDisplay.textContent = mainDisplay.textContent.slice(0, -1).concat(clickedBtn.textContent);
-        }
+    if (
+        (equationSituation === "Zero" || equationSituation === "One Number" || equationSituation === "One Number with Trailing Modulo Operator") &&
+        clickedBtnCategory === "Basic Operator"
+    ) {
+        mainDisplay.textContent += clickedBtn.textContent;
     }
 
-    if (equationSituation === "One Number with Trailing Modulo Operator") {
-        if (clickedBtnCategory === "Digit" || clickedBtnCategory === "Basic Operator") {
-            mainDisplay.textContent += clickedBtn.textContent;
-        }
-
-        if (clickedBtnCategory === "Modulo Operator") {
-            mainDisplay.textContent = `(${mainDisplay.textContent})${clickedBtn.textContent}`;
-        }
-
-        if (clickedBtnCategory === "Evaluator") {
-            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
-            mainDisplay.textContent = answer;
-        }
+    if ((equationSituation === "Zero" || equationSituation === "One Number") && clickedBtnCategory === "Modulo Operator") {
+        mainDisplay.textContent += clickedBtn.textContent;
     }
 
-    if (equationSituation === "Numbers on Either Side of Basic Operator") {
-        if (clickedBtnCategory === "Digit") {
-            mainDisplay.textContent += clickedBtn.textContent;
-        }
-
-        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
-            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
-            mainDisplay.textContent = answer.concat(clickedBtn.textContent);
-        }
-
-        if (clickedBtnCategory === "Evaluator") {
-            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
-            mainDisplay.textContent = answer;
-        }
+    if (
+        equationSituation === "One Number with Trailing Basic Operator" &&
+        (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator")
+    ) {
+        mainDisplay.textContent = mainDisplay.textContent.slice(0, -1).concat(clickedBtn.textContent);
     }
 
-    if (equationSituation === "Numbers on Either Side of Modulo Operator") {
-        if (clickedBtnCategory === "Digit") {
-            mainDisplay.textContent += clickedBtn.textContent;
-        }
+    if (equationSituation === "One Number with Trailing Modulo Operator" && clickedBtnCategory === "Modulo Operator") {
+        mainDisplay.textContent = `(${mainDisplay.textContent})${clickedBtn.textContent}`;
+    }
 
-        if (clickedBtnCategory === "Basic Operator") {
-            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
-            mainDisplay.textContent = answer.concat(clickedBtn.textContent);
-        }
+    if (
+        (equationSituation === "One Number with Trailing Modulo Operator" ||
+            equationSituation === "Numbers on Either Side of Basic Operator" ||
+            equationSituation === "Numbers on Either Side of Modulo Operator") &&
+        clickedBtnCategory === "Evaluator"
+    ) {
+        historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+        mainDisplay.textContent = answer;
+    }
 
-        if (clickedBtnCategory === "Evaluator") {
-            historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
-            mainDisplay.textContent = answer;
-        }
+    if (
+        (equationSituation === "Numbers on Either Side of Basic Operator" || equationSituation === "Numbers on Either Side of Modulo Operator") &&
+        (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator")
+    ) {
+        historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+        mainDisplay.textContent = answer.concat(clickedBtn.textContent);
     }
 }
 
@@ -146,9 +124,46 @@ function evaluateClickedBtnCategory(clickedBtn) {
         return "Modulo Operator";
     }
 
+    if (clickedBtn.id.includes("decimal-btn")) {
+        return "Decimal";
+    }
+
     if (clickedBtn.id.includes("ac-btn")) {
         return "All Clear";
     }
+}
+
+function evaluateDecimalOccurences(mainDisplay, equationSituation) {
+    const equationString = mainDisplay.textContent;
+    let decimalOccurences;
+
+    if (equationSituation === "Zero" || equationSituation === "One Number") {
+        decimalOccurences = equationString.split(".").length - 1;
+    }
+
+    if (equationSituation === "Numbers on Either Side of Basic Operator" || equationSituation === "Numbers on Either Side of Modulo Operator") {
+        const moduloOccurences = equationString.split("%").length - 1;
+        console.log(`modulo occurences: ${moduloOccurences}`);
+        const operatorMatch = /[+−×÷%]/;
+        let operator;
+
+        if (moduloOccurences < 2) {
+            operator = equationString.match(operatorMatch);
+        }
+
+        if (moduloOccurences === 2) {
+            operator = equationString.match(operatorMatch);
+        }
+
+        console.log(`operator: ${operator}`);
+
+        const indexOfOperator = equationString.indexOf(operator);
+        const secondNumber = equationString.slice(indexOfOperator, equationString.length);
+
+        decimalOccurences = secondNumber.split(".").length - 1;
+    }
+
+    return decimalOccurences > 0 ? true : false;
 }
 
 function evaluateCurrentEquationAnswer(mainDisplay, equationSituation) {
@@ -233,28 +248,25 @@ function calculateQuotient(mainDisplay) {
     return (parseFloat(firstNumber) / secondNumber).toString();
 }
 
-// NEEDS TO BE REWORKED 
 function calculateRemainder(mainDisplay) {
     const equationString = mainDisplay.textContent;
     const moduloOccurences = equationString.split("%").length - 1;
     let firstNumber;
     let secondNumber;
-    
+
     if (moduloOccurences === 1) {
         const indexOfModulo = equationString.indexOf("%");
         firstNumber = parseFloat(equationString.slice(0, indexOfModulo));
         secondNumber = parseFloat(equationString.slice(indexOfModulo + 1, equationString.length));
-
-        return (firstNumber % secondNumber)
     } else {
         const indexOfFirstModulo = equationString.indexOf("%");
         const indexOfSecondModulo = equationString.indexOf("%", indexOfFirstModulo + 1);
         firstNumber = equationString.slice(1, indexOfSecondModulo - 1);
         firstNumber = parseFloat(calculateDecimal(firstNumber));
         secondNumber = parseFloat(equationString.slice(indexOfSecondModulo + 1, equationString.length + 1));
-
-        return (firstNumber % secondNumber);
     }
+
+    return (firstNumber % secondNumber).toString();
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -303,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //      - Numbers on Either Side of Basic Operator (15+5)
 //          - Digit click: Append digit value to equation string (15+51)
-//          - Basic Operator OR Modulo Operator click: Evaluate equation string (Calculate 15+5), replace equation string with evaluation answer and clicked operater appended (20-), push evaluated equation string to display history (15+5=20)
+//          - Basic Operator OR Modulo Operator click: Evaluate equation string (Calculate 15+5), replace equation string with evaluation answer and clicked operator appended (20-), push evaluated equation string to display history (15+5=20)
 //          - Evaluator click: Evaluate equation string (Calculate 15+5), replace equation string with evaluation answer (20), push evaluated equation string to display history (15+5=20)
 //          - All Clear click: Reset equation string to 0 (0)
 
