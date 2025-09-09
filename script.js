@@ -1,7 +1,7 @@
 function updateDisplayOnBtnClick(clickedBtn) {
     const mainDisplay = document.getElementById("main-display");
     const historyDisplay = document.getElementById("history-display");
-    const equationSituation = evaluateCurrentEquationSituation(mainDisplay, clickedBtn);
+    const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
     const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
     const decimalInCurrentNumber = evaluateDecimalOccurences(mainDisplay, equationSituation);
     const answer = evaluateCurrentEquationAnswer(mainDisplay, equationSituation);
@@ -9,6 +9,14 @@ function updateDisplayOnBtnClick(clickedBtn) {
     if (clickedBtnCategory === "All Clear") {
         mainDisplay.textContent = "0";
         historyDisplay.textContent = "";
+    }
+
+    if (clickedBtnCategory === "Backspace") {
+        mainDisplay.textContent = mainDisplay.textContent.slice(0, -1);
+
+        if (mainDisplay.textContent === "") {
+            mainDisplay.textContent = "0";
+        }
     }
 
     if (!decimalInCurrentNumber && clickedBtnCategory === "Decimal") {
@@ -63,6 +71,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
 
     mainDisplay.style.fontSize = "64px";
     formatDisplay();
+    alternateAllClearBackspace();
 }
 
 function evaluateCurrentEquationSituation(mainDisplay) {
@@ -133,6 +142,10 @@ function evaluateClickedBtnCategory(clickedBtn) {
 
     if (clickedBtn.id.includes("ac-btn")) {
         return "All Clear";
+    }
+
+    if (clickedBtn.id.includes("bs-btn") || clickedBtn.className === "material-symbols-outlined") {
+        return "Backspace";
     }
 }
 
@@ -280,9 +293,35 @@ function formatDisplay() {
     let mainDisplayFontSize = parseFloat(window.getComputedStyle(mainDisplayDiv).fontSize);
 
     while (mainDisplayWidth > displayWidth) {
-        mainDisplayDiv.style.fontSize = (mainDisplayFontSize - 1) + "px";
+        mainDisplayDiv.style.fontSize = mainDisplayFontSize - 1 + "px";
         mainDisplayWidth = mainDisplayDiv.offsetWidth;
         mainDisplayFontSize--;
+    }
+}
+
+function alternateAllClearBackspace() {
+    const mainDisplay = document.getElementById("main-display");
+    const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
+    const acBtn = document.querySelector(".ac-bs-btn");
+
+    if (equationSituation === "Zero") {
+        acBtn.id = "ac-btn";
+        acBtn.textContent = "AC";
+
+        if (document.querySelector(".material-symbols-outlined")) {
+            document.querySelector(".material-symbols-outlined");
+        }
+    } else {
+        acBtn.id = "bs-btn";
+        acBtn.textContent = "";
+
+        if (!document.querySelector(".material-symbols-outlined")) {
+            const bsSymbol = document.createElement("span");
+            bsSymbol.className = "material-symbols-outlined";
+            bsSymbol.textContent = "backspace";
+
+            acBtn.appendChild(bsSymbol);
+        }
     }
 }
 
@@ -293,8 +332,3 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
-// Get display div width
-// Get main-display div width
-// If main-display width > display width:
-        // Decrease main-display font size until main-display width < display width
