@@ -37,8 +37,12 @@ function updateDisplayOnBtnClick(clickedBtn) {
     }
 
     if (equationSituation === "One Number with Trailing Modulo Operator") {
-        if (clickedBtnCategory === "Digit" || clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+        if (clickedBtnCategory === "Digit" || clickedBtnCategory === "Basic Operator") {
             mainDisplay.textContent += clickedBtn.textContent;
+        }
+
+        if (clickedBtnCategory === "Modulo Operator") {
+            mainDisplay.textContent = `(${mainDisplay.textContent})${clickedBtn.textContent}`;
         }
 
         if (clickedBtnCategory === "Evaluator") {
@@ -68,7 +72,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
             mainDisplay.textContent += clickedBtn.textContent;
         }
 
-        if (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator") {
+        if (clickedBtnCategory === "Basic Operator") {
             historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
             mainDisplay.textContent = answer.concat(clickedBtn.textContent);
         }
@@ -110,8 +114,9 @@ function evaluateCurrentEquationSituation(mainDisplay) {
     }
 
     const currentEquationEndsWithModuloOperator = currentEquationString.endsWith("%");
+    const moduloOccurences = currentEquationString.split("%").length - 1;
 
-    if (currentEquationEndsWithModuloOperator) {
+    if (currentEquationEndsWithModuloOperator && moduloOccurences === 1) {
         return "One Number with Trailing Modulo Operator";
     }
 
@@ -148,7 +153,7 @@ function evaluateClickedBtnCategory(clickedBtn) {
 
 function evaluateCurrentEquationAnswer(mainDisplay, equationSituation) {
     if (equationSituation === "One Number with Trailing Modulo Operator") {
-        return calculatePercentage(mainDisplay.textContent);
+        return calculateDecimal(mainDisplay.textContent);
     }
 
     if (mainDisplay.textContent.includes("+")) {
@@ -166,9 +171,13 @@ function evaluateCurrentEquationAnswer(mainDisplay, equationSituation) {
     if (mainDisplay.textContent.includes("÷")) {
         return calculateQuotient(mainDisplay);
     }
+
+    if (equationSituation === "Numbers on Either Side of Modulo Operator") {
+        return calculateRemainder(mainDisplay);
+    }
 }
 
-function calculatePercentage(number) {
+function calculateDecimal(number) {
     return number.slice(0, -1) / 100;
 }
 
@@ -179,7 +188,7 @@ function calculateSum(mainDisplay) {
     const secondNumber = parseFloat(equationString.slice(indexOfPlus + 1, equationString.length));
 
     if (firstNumber.endsWith("%")) {
-        firstNumber = calculatePercentage(firstNumber);
+        firstNumber = calculateDecimal(firstNumber);
     }
 
     return (parseFloat(firstNumber) + secondNumber).toString();
@@ -192,7 +201,7 @@ function calculateDifference(mainDisplay) {
     const secondNumber = parseFloat(equationString.slice(indexOfMinus + 1, equationString.length));
 
     if (firstNumber.endsWith("%")) {
-        firstNumber = calculatePercentage(firstNumber);
+        firstNumber = calculateDecimal(firstNumber);
     }
 
     return (parseFloat(firstNumber) - secondNumber).toString();
@@ -205,7 +214,7 @@ function calculateProduct(mainDisplay) {
     const secondNumber = parseFloat(equationString.slice(indexOfTimes + 1, equationString.length));
 
     if (firstNumber.endsWith("%")) {
-        firstNumber = calculatePercentage(firstNumber);
+        firstNumber = calculateDecimal(firstNumber);
     }
 
     return (parseFloat(firstNumber) * secondNumber).toString();
@@ -218,10 +227,34 @@ function calculateQuotient(mainDisplay) {
     const secondNumber = parseFloat(equationString.slice(indexOfObelus + 1, equationString.length));
 
     if (firstNumber.endsWith("%")) {
-        firstNumber = calculatePercentage(firstNumber);
+        firstNumber = calculateDecimal(firstNumber);
     }
 
     return (parseFloat(firstNumber) / secondNumber).toString();
+}
+
+// NEEDS TO BE REWORKED 
+function calculateRemainder(mainDisplay) {
+    const equationString = mainDisplay.textContent;
+    const moduloOccurences = equationString.split("%").length - 1;
+    let firstNumber;
+    let secondNumber;
+    
+    if (moduloOccurences === 1) {
+        const indexOfModulo = equationString.indexOf("%");
+        firstNumber = parseFloat(equationString.slice(0, indexOfModulo));
+        secondNumber = parseFloat(equationString.slice(indexOfModulo + 1, equationString.length));
+
+        return (firstNumber % secondNumber)
+    } else {
+        const indexOfFirstModulo = equationString.indexOf("%");
+        const indexOfSecondModulo = equationString.indexOf("%", indexOfFirstModulo + 1);
+        firstNumber = equationString.slice(1, indexOfSecondModulo - 1);
+        firstNumber = parseFloat(calculateDecimal(firstNumber));
+        secondNumber = parseFloat(equationString.slice(indexOfSecondModulo + 1, equationString.length + 1));
+
+        return (firstNumber % secondNumber);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
