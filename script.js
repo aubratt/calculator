@@ -5,6 +5,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
     const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
     const decimalInCurrentNumber = evaluateDecimalOccurences(mainDisplay, equationSituation);
     const answer = evaluateCurrentEquationAnswer(mainDisplay, equationSituation);
+    let justCalculated = false;
 
     if (clickedBtnCategory === "All Clear") {
         mainDisplay.textContent = "0";
@@ -25,6 +26,9 @@ function updateDisplayOnBtnClick(clickedBtn) {
 
     if (equationSituation === "Zero" && clickedBtnCategory === "Digit") {
         mainDisplay.textContent = clickedBtn.textContent;
+    } else if (clickedBtnCategory === "Digit" && historyDisplay.textContent !== "" && equationSituation === "One Number") {
+        mainDisplay.textContent = clickedBtn.textContent;
+        historyDisplay.textContent = "";
     } else if (clickedBtnCategory === "Digit") {
         mainDisplay.textContent += clickedBtn.textContent;
     }
@@ -59,6 +63,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
     ) {
         historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
         mainDisplay.textContent = answer;
+        justCalculated = true;
     }
 
     if (
@@ -67,11 +72,12 @@ function updateDisplayOnBtnClick(clickedBtn) {
     ) {
         historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
         mainDisplay.textContent = answer.concat(clickedBtn.textContent);
+        justCalculated = true;
     }
 
     mainDisplay.style.fontSize = "64px";
     formatDisplay();
-    alternateAllClearBackspace();
+    alternateAllClearBackspace(justCalculated);
 }
 
 function evaluateCurrentEquationSituation(mainDisplay) {
@@ -159,7 +165,6 @@ function evaluateDecimalOccurences(mainDisplay, equationSituation) {
 
     if (equationSituation === "Numbers on Either Side of Basic Operator" || equationSituation === "Numbers on Either Side of Modulo Operator") {
         const moduloOccurences = equationString.split("%").length - 1;
-        console.log(`modulo occurences: ${moduloOccurences}`);
         const operatorMatch = /[+−×÷%]/;
         let operator;
 
@@ -170,8 +175,6 @@ function evaluateDecimalOccurences(mainDisplay, equationSituation) {
         if (moduloOccurences === 2) {
             operator = equationString.match(operatorMatch);
         }
-
-        console.log(`operator: ${operator}`);
 
         const indexOfOperator = equationString.indexOf(operator);
         const secondNumber = equationString.slice(indexOfOperator, equationString.length);
@@ -299,18 +302,14 @@ function formatDisplay() {
     }
 }
 
-function alternateAllClearBackspace() {
+function alternateAllClearBackspace(justCalculated) {
     const mainDisplay = document.getElementById("main-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
     const acBtn = document.querySelector(".ac-bs-btn");
 
-    if (equationSituation === "Zero") {
+    if (equationSituation === "Zero" || justCalculated) {
         acBtn.id = "ac-btn";
         acBtn.textContent = "AC";
-
-        if (document.querySelector(".material-symbols-outlined")) {
-            document.querySelector(".material-symbols-outlined");
-        }
     } else {
         acBtn.id = "bs-btn";
         acBtn.textContent = "";
@@ -332,3 +331,5 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+
+// If history display is not empty AND main display is one number
