@@ -16,8 +16,12 @@ function updateDisplayOnBtnClick(clickedBtn) {
     if (clickedBtnCategory === "Backspace") {
         mainDisplay.textContent = mainDisplay.textContent.slice(0, -1);
 
-        if (mainDisplay.textContent === "" || mainDisplay.textContent === "-") {
+        if (mainDisplay.textContent === "" || mainDisplay.textContent === "-" || mainDisplay.textContent === "(") {
             mainDisplay.textContent = "0";
+        } else if (mainDisplay.textContent.slice(-1) === "-") {
+            mainDisplay.textContent = mainDisplay.textContent.slice(0, mainDisplay.textContent.length - 1);
+        } else if (mainDisplay.textContent.slice(0, 1) === "(" && mainDisplay.textContent.slice(-1) !== ")") {
+            mainDisplay.textContent = mainDisplay.textContent.slice(1, mainDisplay.textContent.length);
         }
     }
 
@@ -30,7 +34,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
         (equationSituation === "One Number" ||
             equationSituation === "One Number with Trailing Modulo Operator" ||
             equationSituation === "Numbers on Either Side of Basic Operator" ||
-            equationSituation === "One Number with Trailing Modulo Operator")
+            equationSituation === "Numbers on Either Side of Modulo Operator")
     ) {
         mainDisplay.textContent = changeSignOfNumber(mainDisplay, equationSituation);
     }
@@ -78,7 +82,8 @@ function updateDisplayOnBtnClick(clickedBtn) {
     }
 
     if (
-        (equationSituation === "Numbers on Either Side of Basic Operator" || (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences === 1)) &&
+        (equationSituation === "Numbers on Either Side of Basic Operator" ||
+            (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences === 1)) &&
         (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator")
     ) {
         historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
@@ -181,7 +186,6 @@ function evaluateDecimalOccurences(mainDisplay, equationSituation) {
     if (equationSituation === "Numbers on Either Side of Basic Operator" || equationSituation === "Numbers on Either Side of Modulo Operator") {
         const operatorMatch = /[+−×÷%]/;
         const operator = equationString.match(operatorMatch);
-
         const indexOfOperator = equationString.indexOf(operator);
         const secondNumber = equationString.slice(indexOfOperator, equationString.length);
 
@@ -193,6 +197,11 @@ function evaluateDecimalOccurences(mainDisplay, equationSituation) {
 
 function changeSignOfNumber(mainDisplay, equationSituation) {
     const equationString = mainDisplay.textContent;
+    const moduloOccurences = equationString.split("%").length - 1;
+    const operatorMatch = /[+−×÷%]/;
+    const firstOperator = equationString.match(operatorMatch);
+    const indexOfFirstOperator = equationString.indexOf(firstOperator);
+    let equationStringFirstHalf;
     let currentNumber;
 
     if (equationSituation === "One Number") {
@@ -204,6 +213,22 @@ function changeSignOfNumber(mainDisplay, equationSituation) {
         currentNumber > 0 ? (currentNumber = 0 - currentNumber) : (currentNumber = Math.abs(currentNumber));
 
         return currentNumber + "%";
+    } else if (equationSituation === "Numbers on Either Side of Basic Operator" || (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences === 1)) {
+        currentNumber = equationString.slice(indexOfFirstOperator + 1, equationString.length);
+        currentNumber > 0 ? (currentNumber = (0 - currentNumber).toString()) : (currentNumber = Math.abs(currentNumber).toString());
+        equationStringFirstHalf = equationString.slice(0, indexOfFirstOperator + 1);
+
+        return equationStringFirstHalf + currentNumber;
+    } else if (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences > 1) {
+        const equationStringAfterFirstOperator = equationString.slice(indexOfFirstOperator + 1, equationString.length);
+        const secondOperator = equationStringAfterFirstOperator.match(operatorMatch);
+        const indexOfSecondOperator = equationStringAfterFirstOperator.indexOf(secondOperator);
+        currentNumber = equationStringAfterFirstOperator.slice(indexOfSecondOperator + 1, equationStringAfterFirstOperator.length);
+        currentNumber > 0 ? (currentNumber = (0 - currentNumber).toString()) : (currentNumber = Math.abs(currentNumber).toString());
+        equationStringFirstHalf = equationString.slice(0, indexOfFirstOperator + 1);
+        const equationStringSecondHalf = equationStringAfterFirstOperator.slice(0, indexOfSecondOperator + 1) + currentNumber;
+
+        return equationStringFirstHalf + equationStringSecondHalf;
     }
 }
 
@@ -303,10 +328,6 @@ function calculateRemainder(mainDisplay) {
         const indexOfModulo = equationString.indexOf("%");
         firstNumber = parseFloat(equationString.slice(0, indexOfModulo));
         secondNumber = parseFloat(equationString.slice(indexOfModulo + 1, equationString.length));
-
-        console.log(`first number: ${firstNumber}`);
-        console.log(`second number: ${secondNumber}`);
-        console.log(firstNumber % secondNumber);
     } else {
         const indexOfFirstModulo = equationString.indexOf("%");
         const indexOfSecondModulo = equationString.indexOf("%", indexOfFirstModulo + 1);
