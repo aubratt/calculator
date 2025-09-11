@@ -92,10 +92,10 @@ function updateDisplayOnBtnClick(clickedBtn) {
         justCalculated = true;
     }
 
-    mainDisplay.style.fontSize = "64px";
-    formatDisplay();
     alternateAllClearBackspace(justCalculated);
     eliminateExcessZeros(equationString);
+    mainDisplay.style.fontSize = "64px";
+    formatDisplay();
 }
 
 function evaluateCurrentEquationSituation(mainDisplay) {
