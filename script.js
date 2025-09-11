@@ -1,5 +1,6 @@
 function updateDisplayOnBtnClick(clickedBtn) {
     const mainDisplay = document.getElementById("main-display");
+    const equationString = mainDisplay.textContent;
     const historyDisplay = document.getElementById("history-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
     const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
@@ -94,6 +95,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
     mainDisplay.style.fontSize = "64px";
     formatDisplay();
     alternateAllClearBackspace(justCalculated);
+    eliminateExcessZeros(equationString);
 }
 
 function evaluateCurrentEquationSituation(mainDisplay) {
@@ -213,7 +215,10 @@ function changeSignOfNumber(mainDisplay, equationSituation) {
         currentNumber > 0 ? (currentNumber = 0 - currentNumber) : (currentNumber = Math.abs(currentNumber));
 
         return currentNumber + "%";
-    } else if (equationSituation === "Numbers on Either Side of Basic Operator" || (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences === 1)) {
+    } else if (
+        equationSituation === "Numbers on Either Side of Basic Operator" ||
+        (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences === 1)
+    ) {
         currentNumber = equationString.slice(indexOfFirstOperator + 1, equationString.length);
         currentNumber > 0 ? (currentNumber = (0 - currentNumber).toString()) : (currentNumber = Math.abs(currentNumber).toString());
         equationStringFirstHalf = equationString.slice(0, indexOfFirstOperator + 1);
@@ -372,6 +377,32 @@ function alternateAllClearBackspace(justCalculated) {
 
             acBtn.appendChild(bsSymbol);
         }
+    }
+}
+
+function eliminateExcessZeros(previousMainDisplay) {
+    const mainDisplay = document.getElementById("main-display");
+    const historyDisplay = document.getElementById("history-display");
+    const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
+    let equationString = mainDisplay.textContent;
+
+    if (
+        (equationSituation === "One Number" ||
+            equationSituation === "One Number with Trailing Basic Operator" ||
+            equationSituation === "One Number with Trailing Modulo Operator") &&
+        equationString.includes(".") &&
+        equationString.includes("00000000")
+    ) {
+        const decimal = equationString.match(".");
+        const indexOfDecimal = equationString.indexOf(decimal);
+        const equationStringBeforeDecimal = equationString.slice(0, indexOfDecimal);
+        const equationStringAfterDecimal = equationString.slice(indexOfDecimal + 1, equationString.length);
+        const firstZero = equationStringAfterDecimal.match("0");
+        const indexOfFirstZero = equationStringAfterDecimal.indexOf(firstZero);
+        const roundedNumber = equationStringBeforeDecimal + equationStringAfterDecimal.slice(0, indexOfFirstZero);
+
+        historyDisplay.textContent = previousMainDisplay.concat("=", roundedNumber.toString());
+        mainDisplay.textContent = roundedNumber;
     }
 }
 
