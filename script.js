@@ -395,14 +395,20 @@ function eliminateExcessZeros(previousMainDisplay) {
     ) {
         const decimal = equationString.match(".");
         const indexOfDecimal = equationString.indexOf(decimal);
-        const equationStringBeforeDecimal = equationString.slice(0, indexOfDecimal);
+        const equationStringBeforeDecimal = equationString.slice(0, indexOfDecimal + 1);
+        console.log(equationStringBeforeDecimal);
         const equationStringAfterDecimal = equationString.slice(indexOfDecimal + 1, equationString.length);
+        console.log(equationStringAfterDecimal);
         const firstZero = equationStringAfterDecimal.match("0");
         const indexOfFirstZero = equationStringAfterDecimal.indexOf(firstZero);
         const roundedNumber = equationStringBeforeDecimal + equationStringAfterDecimal.slice(0, indexOfFirstZero);
 
         historyDisplay.textContent = previousMainDisplay.concat("=", roundedNumber.toString());
         mainDisplay.textContent = roundedNumber;
+
+        if (mainDisplay.textContent.slice(-1) === ".") {
+            mainDisplay.textContent = mainDisplay.textContent.slice(0, mainDisplay.textContent.length - 1);
+        }
     }
 }
 
@@ -413,5 +419,3 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
-// If history display is not empty AND main display is one number
