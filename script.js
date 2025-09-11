@@ -385,6 +385,7 @@ function eliminateExcessZeros(previousMainDisplay) {
     const historyDisplay = document.getElementById("history-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
     let equationString = mainDisplay.textContent;
+    console.log(equationString);
 
     if (
         (equationSituation === "One Number" ||
@@ -393,8 +394,10 @@ function eliminateExcessZeros(previousMainDisplay) {
         equationString.includes(".") &&
         equationString.includes("00000000")
     ) {
-        const decimal = equationString.match(".");
+        const decimalMatch = /[.]/;
+        const decimal = equationString.match(decimalMatch);
         const indexOfDecimal = equationString.indexOf(decimal);
+        console.log(indexOfDecimal);
         const equationStringBeforeDecimal = equationString.slice(0, indexOfDecimal + 1);
         console.log(equationStringBeforeDecimal);
         const equationStringAfterDecimal = equationString.slice(indexOfDecimal + 1, equationString.length);
