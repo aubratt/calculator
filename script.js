@@ -26,7 +26,7 @@ function updateDisplayOnBtnClick(clickedBtn) {
         }
     }
 
-    if (!decimalInCurrentNumber && clickedBtnCategory === "Decimal") {
+    if (!decimalInCurrentNumber && equationSituation !== "Undefined" && clickedBtnCategory === "Decimal") {
         mainDisplay.textContent += clickedBtn.textContent;
     }
 
@@ -42,11 +42,20 @@ function updateDisplayOnBtnClick(clickedBtn) {
 
     if (equationSituation === "Zero" && clickedBtnCategory === "Digit") {
         mainDisplay.textContent = clickedBtn.textContent;
-    } else if (clickedBtnCategory === "Digit" && historyDisplay.textContent !== "" && equationSituation === "One Number") {
+    } else if (clickedBtnCategory === "Digit" && historyDisplay.textContent !== "" && (equationSituation === "One Number" || equationSituation === "Undefined")) {
         mainDisplay.textContent = clickedBtn.textContent;
         historyDisplay.textContent = "";
     } else if (clickedBtnCategory === "Digit") {
         mainDisplay.textContent += clickedBtn.textContent;
+    }
+
+    if (
+        equationSituation === "Undefined" &&
+        (clickedBtnCategory !== "Digit")
+    ) {
+        justCalculated = true;
+        alternateAllClearBackspace(justCalculated);
+        return;
     }
 
     if (
@@ -94,6 +103,12 @@ function updateDisplayOnBtnClick(clickedBtn) {
         justCalculated = true;
     }
 
+    const resultIsInfinity = evaluateCurrentEquationSituation(mainDisplay) === "Infinity" ? true : false;
+
+    if (resultIsInfinity) {
+        mainDisplay.textContent = "Undefined";
+    }
+
     alternateAllClearBackspace(justCalculated);
     mainDisplay.style.fontSize = "64px";
     formatDisplay();
@@ -104,6 +119,14 @@ function evaluateCurrentEquationSituation(mainDisplay) {
 
     if (currentEquationString === "0") {
         return "Zero";
+    }
+
+    if (currentEquationString.includes("Infinity")) {
+        return "Infinity";
+    }
+
+    if (currentEquationString === "Undefined") {
+        return "Undefined";
     }
 
     const currentEquationIncludesBasicOperator =
