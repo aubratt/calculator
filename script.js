@@ -1,6 +1,5 @@
 function updateDisplayOnBtnClick(clickedBtn) {
     const mainDisplay = document.getElementById("main-display");
-    const equationString = mainDisplay.textContent;
     const historyDisplay = document.getElementById("history-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
     const clickedBtnCategory = evaluateClickedBtnCategory(clickedBtn);
@@ -121,7 +120,7 @@ function evaluateCurrentEquationSituation(mainDisplay) {
         return "Zero";
     }
 
-    if (currentEquationString.includes("Infinity")) {
+    if (currentEquationString.includes("Infinity") || currentEquationString.includes("NaN")) {
         return "Infinity";
     }
 
