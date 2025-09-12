@@ -77,8 +77,9 @@ function updateDisplayOnBtnClick(clickedBtn) {
             equationSituation === "Numbers on Either Side of Modulo Operator") &&
         clickedBtnCategory === "Evaluator"
     ) {
-        historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+        historyDisplay.textContent = mainDisplay.textContent;
         mainDisplay.textContent = answer;
+        round();
         justCalculated = true;
     }
 
@@ -87,13 +88,13 @@ function updateDisplayOnBtnClick(clickedBtn) {
             (equationSituation === "Numbers on Either Side of Modulo Operator" && moduloOccurences === 1)) &&
         (clickedBtnCategory === "Basic Operator" || clickedBtnCategory === "Modulo Operator")
     ) {
-        historyDisplay.textContent = mainDisplay.textContent.concat("=", answer);
+        historyDisplay.textContent = mainDisplay.textContent;
         mainDisplay.textContent = answer.concat(clickedBtn.textContent);
+        round();
         justCalculated = true;
     }
 
     alternateAllClearBackspace(justCalculated);
-    eliminateExcessZeros(equationString);
     mainDisplay.style.fontSize = "64px";
     formatDisplay();
 }
@@ -380,38 +381,21 @@ function alternateAllClearBackspace(justCalculated) {
     }
 }
 
-function eliminateExcessZeros(previousMainDisplay) {
+function round() {
     const mainDisplay = document.getElementById("main-display");
     const historyDisplay = document.getElementById("history-display");
     const equationSituation = evaluateCurrentEquationSituation(mainDisplay);
-    let equationString = mainDisplay.textContent;
-    console.log(equationString);
+    const equationString = mainDisplay.textContent;
+    let rounded;
 
-    if (
-        (equationSituation === "One Number" ||
-            equationSituation === "One Number with Trailing Basic Operator" ||
-            equationSituation === "One Number with Trailing Modulo Operator") &&
-        equationString.includes(".") &&
-        equationString.includes("00000000")
-    ) {
-        const decimalMatch = /[.]/;
-        const decimal = equationString.match(decimalMatch);
-        const indexOfDecimal = equationString.indexOf(decimal);
-        console.log(indexOfDecimal);
-        const equationStringBeforeDecimal = equationString.slice(0, indexOfDecimal + 1);
-        console.log(equationStringBeforeDecimal);
-        const equationStringAfterDecimal = equationString.slice(indexOfDecimal + 1, equationString.length);
-        console.log(equationStringAfterDecimal);
-        const firstZero = equationStringAfterDecimal.match("0");
-        const indexOfFirstZero = equationStringAfterDecimal.indexOf(firstZero);
-        const roundedNumber = equationStringBeforeDecimal + equationStringAfterDecimal.slice(0, indexOfFirstZero);
-
-        historyDisplay.textContent = previousMainDisplay.concat("=", roundedNumber.toString());
-        mainDisplay.textContent = roundedNumber;
-
-        if (mainDisplay.textContent.slice(-1) === ".") {
-            mainDisplay.textContent = mainDisplay.textContent.slice(0, mainDisplay.textContent.length - 1);
-        }
+    if (equationSituation === "One Number") {
+        rounded = Math.round(equationString * 100000000) / 100000000;
+        mainDisplay.textContent = rounded;
+    } else if (equationSituation === "One Number with Trailing Basic Operator" || equationSituation === "One Number with Trailing Modulo Operator") {
+        console.log(equationString.slice(0, equationString.length - 1));
+        rounded = Math.round(equationString.slice(0, equationString.length - 1) * 100000000) / 100000000;
+        console.log(rounded);
+        mainDisplay.textContent = rounded.toString() + equationString.slice(-1);
     }
 }
 
